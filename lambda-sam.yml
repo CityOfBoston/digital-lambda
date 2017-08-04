@@ -8,6 +8,10 @@ Parameters:
     Type: String
     Description: Parent stack name, used for naming
 
+  LambdaExecutionRoleArn:
+    Type: String
+    Description: ARN for the role that Lambda functions will get
+
   DeploySlackChannel:
     Type: String
     Description: Channel to send Slack messages to
@@ -22,6 +26,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${LambdaStackName}-CloudFormationDeployFunction"
+      Role: !Ref LambdaExecutionRoleArn
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
       CodeUri: ./slack/
