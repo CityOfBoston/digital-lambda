@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Slack Lambda Functions
+
+Parameters:
+  DeploySlackChannel:
+    Type: String
+    Description: Channel to send Slack messages to
+    Default: digital_builds
+
+  DeploySlackWebhookUrl:
+    Type: String
+    Description: Webhook URL for the above channel
+
+Resources:
+  DeployFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: post-cloudformation-deploy.handler
+      Runtime: nodejs6.10
+      Environment:
+        Variables:
+          SLACK_WEBHOOK_URL: !Ref DeploySlackWebhookUrl
+          SLACK_CHANNEL: !Ref DeploySlackChannel
