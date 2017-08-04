@@ -4,7 +4,7 @@ Transform: AWS::Serverless-2016-10-31
 Description: Digital team Lambda functions
 
 Parameters:
-  StackName:
+  LambdaStackName:
     Type: String
     Description: Parent stack name, used for naming
 
@@ -18,10 +18,10 @@ Parameters:
     Description: Webhook URL for the above channel
 
 Resources:
-  DeployFunction:
+  CloudFormationDeployFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "${StackName}-Deploy"
+      FunctionName: !Sub "${LambdaStackName}-CloudFormationDeployFunction"
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
       CodeUri: ./slack/
