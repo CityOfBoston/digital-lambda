@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
-Description: Slack Lambda Functions
+Description: Digital team Lambda functions
 
 Parameters:
   DeploySlackChannel:
@@ -19,6 +19,7 @@ Resources:
     Properties:
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
+      CodeUri: ./slack/
       Environment:
         Variables:
           SLACK_WEBHOOK_URL: !Ref DeploySlackWebhookUrl
