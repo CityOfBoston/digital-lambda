@@ -4,6 +4,10 @@ Transform: AWS::Serverless-2016-10-31
 Description: Digital team Lambda functions
 
 Parameters:
+  StackName:
+    Type: String
+    Description: Parent stack name, used for naming
+
   DeploySlackChannel:
     Type: String
     Description: Channel to send Slack messages to
@@ -17,6 +21,7 @@ Resources:
   DeployFunction:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: !Sub "${StackName}-Deploy"
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
       CodeUri: ./slack/
