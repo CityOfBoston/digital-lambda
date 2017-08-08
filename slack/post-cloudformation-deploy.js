@@ -5,22 +5,41 @@ const path = require('path');
 
 const postMessage = require('./slack-helpers').postMessage;
 
+// The status of the resource, which can be one of the following status codes:
+// CREATE_COMPLETE | CREATE_FAILED | CREATE_IN_PROGRESS | DELETE_COMPLETE |
+// DELETE_FAILED | DELETE_IN_PROGRESS | DELETE_SKIPPED | UPDATE_COMPLETE |
+// UPDATE_FAILED | UPDATE_IN_PROGRESS.
+
 const STATUS_MESSAGES = {
-  'UPDATE_IN_PROGRESS': 'Starting update…',
-  'UPDATE_COMPLETE': 'Update successful!'
-  'UPDATE_ROLLBACK_IN_PROGRESS': 'Starting rollback…',
-  'UPDATE_ROLLBACK_COMPLETE': 'Rollback complete.'
+  'CREATE_IN_PROGRESS': 'Starting create…',
+  'CREATE_COMPLETE': 'Create successful!',
   'CREATE_FAILED': 'Failure creating resource',
+
+  'UPDATE_IN_PROGRESS': 'Starting update…',
+  'UPDATE_COMPLETE': 'Update successful!',
   'UPDATE_FAILED': 'Failure updating resource',
+  'UPDATE_ROLLBACK_IN_PROGRESS': 'Starting rollback…',
+  'UPDATE_ROLLBACK_COMPLETE': 'Rollback complete.',
+
+  'DELETE_IN_PROGRESS': 'Starting delete…',
+  'DELETE_COMPLETE': 'Delete successful!',
+  'DELETE_FAILED': 'Failure deleting resource',
 };
 
 const STATUS_COLORS = {
-  'UPDATE_IN_PROGRESS': 'warning',
-  'UPDATE_COMPLETE': 'good'
-  'UPDATE_ROLLBACK_IN_PROGRESS': 'warning',
-  'UPDATE_ROLLBACK_IN_COMPLETE': 'warning',
+  'CREATE_IN_PROGRESS': 'warning',
+  'CREATE_COMPLETE': 'good',
   'CREATE_FAILED': 'danger',
+
+  'UPDATE_IN_PROGRESS': 'warning',
+  'UPDATE_COMPLETE': 'good',
   'UPDATE_FAILED': 'danger',
+  'UPDATE_ROLLBACK_IN_PROGRESS': 'warning',
+  'UPDATE_ROLLBACK_IN_COMPLETE': 'good',
+  
+  'DELETE_IN_PROGRESS': 'warning',
+  'DELETE_COMPLETE': 'good',
+  'DELETE_FAILED': 'danger',
 };
 
 let config;
