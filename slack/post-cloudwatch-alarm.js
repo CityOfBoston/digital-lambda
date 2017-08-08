@@ -68,9 +68,12 @@ function processEvent(event, callback) {
   const slackMessage = {
     attachments: [
       {
-        color: STATE_COLORS[message.NewStateUrl],
-        title: `<${alarmUrl}|${message.AlarmName}>`,
-        text: message.NewStateReason,
+        color: STATE_COLORS[message.NewStateValue],
+        title: `<${alarmUrl}|${message.AlarmName}> is ${message.NewStateValue}`,
+        text:
+          message.NewStateValue === 'ALARM'
+            ? `${message.AlarmDescription}\n\n${message.NewStateReason}`
+            : '',
         footer: 'CloudWatch',
         footer_icon:
           'https://s3.amazonaws.com/cloudwatch-console-static-content-s3/1.0/images/favicon.ico',
