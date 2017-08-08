@@ -96,8 +96,6 @@ function parseCloudFormationMessage(message) {
     out[match[1]] = match[2];
   }
 
-  console.log('MATCHES', out);
-
   return out;
 }
 
@@ -105,15 +103,18 @@ function processEvent(event, callback) {
   const snsRecord = event.Records[0].Sns;
 
   const message = parseCloudFormationMessage(snsRecord.Message);
+
+  console.info('Parsed message', message);
+
   const stackUrl = makeStackUrl(message.StackId);
 
   const aboutOurStack = message.LogicalResourceId === message.StackName;
   const textExists = STATUS_MESSAGES[message.ResourceStatus];
   const hasReason = !!message.ResourceStatusReason;
 
-  const displayMessage = textExists && (aboutOurStack || hasReason);
+  const shouldDisplayMessage = textExists && (aboutOurStack || hasReason);
 
-  if (!displayMessage) {
+  if (!shouldDisplayMessage) {
     console.info(
       `Skipping ${message.ResourceStatus} message for LogicalResourceId ${message.LogicalResourceId}`
     );
@@ -121,12 +122,18 @@ function processEvent(event, callback) {
     return;
   }
 
+  console.info(
+    `Posting ${message.ResourceStatus} message for LogicalResourceId ${message.LogicalResourceId}`
+  );
+
   const slackMessage = {
     // text: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
     attachments: [
       {
         color: STATUS_COLORS[message.ResourceStatus] || '#ccc',
-        title: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
+        title: `<${stackUrl}|${message.StackName}>: ${STATUS_MESSAGES[
+          message.ResourceStatus
+        ]}`,
         text:
           message.ResourceStatus === 'UPDATE_IN_PROGRESS'
             ? ''
