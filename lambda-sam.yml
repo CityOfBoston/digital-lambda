@@ -26,6 +26,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "${LambdaStackName}-CloudFormationDeployFunction"
+      Description: Function to notify Slack when a CloudFormation deploy completes
       Role: !Ref LambdaExecutionRoleArn
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
