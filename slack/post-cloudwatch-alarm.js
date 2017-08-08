@@ -51,7 +51,7 @@ let config;
 
 function makeAlarmUrl(alarmName) {
   return `https://console.aws.amazon.com/cloudwatch/home?region=${process.env
-    .AWS_REGION}#alarm:alarmFilter=ANY;name=${encodeURIComponent(alarmName)}`;
+    .AWS_REGION}#s=Alarms&alarm=${encodeURIComponent(alarmName)}`;
 }
 
 function parseCloudFormationMessage(message) {
@@ -66,7 +66,6 @@ function processEvent(event, callback) {
   const alarmUrl = makeAlarmUrl(message.AlarmName);
 
   const slackMessage = {
-    // text: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
     attachments: [
       {
         color: STATE_COLORS[message.NewStateUrl],

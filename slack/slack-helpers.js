@@ -12,10 +12,10 @@ exports.postMessage = (hookUrl, message, callback) => {
     'Content-Length': Buffer.byteLength(body),
   };
 
-  const postReq = https.request(options, (res) => {
+  const postReq = https.request(options, res => {
     const chunks = [];
     res.setEncoding('utf8');
-    res.on('data', (chunk) => chunks.push(chunk));
+    res.on('data', chunk => chunks.push(chunk));
     res.on('end', () => {
       if (callback) {
         callback({

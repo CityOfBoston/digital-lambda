@@ -108,10 +108,10 @@ function processEvent(event, callback) {
   const stackUrl = makeStackUrl(message.StackId);
 
   const aboutOurStack = message.LogicalResourceId === message.StackName;
+  const isFailure = message.ResourceStatus.endsWith('_FAILED');
   const textExists = STATUS_MESSAGES[message.ResourceStatus];
-  const hasReason = !!message.ResourceStatusReason;
 
-  const shouldDisplayMessage = textExists && (aboutOurStack || hasReason);
+  const shouldDisplayMessage = textExists && (aboutOurStack || isFailure);
 
   if (!shouldDisplayMessage) {
     console.info(
