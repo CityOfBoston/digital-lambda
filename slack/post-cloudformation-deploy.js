@@ -43,10 +43,11 @@ StackName='DigitalAppsLambda-Deploy'
 ClientRequestToken='null'
 */
 
+function makeStackUrl(stackArn) {
+  return `https://console.aws.amazon.com/cloudformation/home?region=${process.env.AWS_REGION}#/stack/detail?stackId=${encodeURIComponent(stackArn)}`
+}
 
 function parseCloudFormationMessage(message) {
-  console.log("MESSAGE", message);
-
   // matches e.g. LogicalResourceId='DigitalApps-311Indexer-DeployPipeline-17SDBA13ADM41'
   // has to be multiline due to embedded JSON 
   const re = /^([^=]*)='([^']*)'$/gm;
@@ -67,15 +68,17 @@ function processEvent(event, callback) {
   const subject = snsRecord.Subject;
 
   const message = parseCloudFormationMessage(snsRecord.Message);
+  const stackUrl = makeStackUrl(message.StackId);
 
   if (message.StackName !== message.LogicalResourceId) {
-    console.info('Skipping message for LogicalResourceId ' + message.LogicalResourceId);
+    console.info(`Skipping ${message.ResourceStatus} message for LogicalResourceId ${message.LogicalResourceId}`);
     callback(null);
+    return;
   }
 
   const slackMessage = {
     channel: config.DEPLOY_SLACK_CHANNEL,
-    text: `${message.StackName}: ${message.ResourceStatus}`,
+    text: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
   };
 
   postMessage(config.DEPLOY_SLACK_WEBHOOK_URL, slackMessage, (response) => {
