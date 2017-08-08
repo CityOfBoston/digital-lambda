@@ -7,16 +7,57 @@ const postMessage = require('./slack-helpers').postMessage;
 
 let config;
 
+/*
+Message:
+
+StackId='arn:aws:cloudformation:us-east-1:166088413922:stack/DigitalAppsLambda-Deploy/fe44f990-792a-11e7-9b6a-50fae984a035'
+Timestamp='2017-08-08T17:36:34.381Z'
+EventId='CloudFormationDeployFunction-UPDATE_COMPLETE-2017-08-08T17:36:34.381Z'
+LogicalResourceId='CloudFormationDeployFunction'
+Namespace='166088413922'
+PhysicalResourceId='DigitalAppsLambda-CloudFormationDeployFunction'
+ResourceProperties='
+{
+    "Role": "arn:aws:iam::166088413922:role/DigitalAppsLambda-LambdaExecutionRole-1LQY2ILD5B37G",
+    "FunctionName": "DigitalAppsLambda-CloudFormationDeployFunction",
+    "Runtime": "nodejs6.10",
+    "Description": "Function to notify Slack when a CloudFormation deploy completes",
+    "Handler": "post-cloudformation-deploy.handler",
+    "Code": {
+        "S3Bucket": "digitalappslambda-packagedlambdafunctionsbucket-108kab9jtcsbx",
+        "S3Key": "554cbb5eef69abc1301389ea11feeced"
+    },
+    "Tags": [
+        {
+            "Value": "SAM",
+            "Key": "lambda:createdBy"
+        }
+    ]
+}
+
+'
+ResourceStatus='UPDATE_COMPLETE'
+ResourceStatusReason=''
+ResourceType='AWS::Lambda::Function'
+StackName='DigitalAppsLambda-Deploy'
+ClientRequestToken='null'
+*/
+
+
 function parseCloudFormationMessage(message) {
   console.log("MESSAGE", message);
 
-  const terms = message.split('\n');
+  // matches e.g. LogicalResourceId='DigitalApps-311Indexer-DeployPipeline-17SDBA13ADM41'
+  // has to be multiline due to embedded JSON 
+  const re = /^([^=]*)='([^']*)'$/gm;
   const out = {};
-  terms.forEach((term) => {
-    // matches e.g. LogicalResourceId='DigitalApps-311Indexer-DeployPipeline-17SDBA13ADM41'
-    const m = term.match(/^([^/]*)='(.*)'$/);
-    out[m[1]] = m[2];
-  })
+
+  let match;
+  while ((match = re.exec(message)) !== null) {
+    out[match[1]] = out[match[2]];
+  }
+
+  console.log("MATCHES", out)
 
   return out;
 }
@@ -52,6 +93,7 @@ function processEvent(event, callback) {
 }
 
 exports.handler = (event, context, callback) => {
+  // config might be still populated from a previous run, so we only load from disk if necessary
   if (!config) {
     fs.readFile(path.resolve(__dirname, 'config.json'), (err, data) => {
       if (err) {
@@ -59,7 +101,6 @@ exports.handler = (event, context, callback) => {
       }
 
       config = JSON.parse(data);
-      console.log("LOADED CONFIG", config);
 
       processEvent(event, callback);
     });
