@@ -5,13 +5,22 @@ const path = require('path');
 
 const postMessage = require('./slack-helpers').postMessage;
 
-const IGNORED_STATUSES = [
-  'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS',
-];
+const STATUS_MESSAGES = {
+  'UPDATE_IN_PROGRESS': 'Starting update…',
+  'UPDATE_COMPLETE': 'Update successful!'
+  'UPDATE_ROLLBACK_IN_PROGRESS': 'Starting rollback…',
+  'UPDATE_ROLLBACK_COMPLETE': 'Rollback complete.'
+  'CREATE_FAILED': 'Failure creating resource',
+  'UPDATE_FAILED': 'Failure updating resource',
+};
 
 const STATUS_COLORS = {
   'UPDATE_IN_PROGRESS': 'warning',
   'UPDATE_COMPLETE': 'good'
+  'UPDATE_ROLLBACK_IN_PROGRESS': 'warning',
+  'UPDATE_ROLLBACK_IN_COMPLETE': 'warning',
+  'CREATE_FAILED': 'danger',
+  'UPDATE_FAILED': 'danger',
 };
 
 let config;
@@ -79,7 +88,13 @@ function processEvent(event, callback) {
   const message = parseCloudFormationMessage(snsRecord.Message);
   const stackUrl = makeStackUrl(message.StackId);
 
-  if (message.StackName !== message.LogicalResourceId || IGNORED_STATUSES.indexOf(message.ResourceStatus) !== -1) {
+  const aboutOurStack = message.LogicalResourceId === message.StackName;
+  const textExists = STATUS_MESSAGES[message.ResourceStatus];
+  const hasReason = !!message.ResourceStatusReason;
+
+  const displayMessage = textExists && (aboutOurStack || hasReason);
+
+  if (!displayMessage) {
     console.info(`Skipping ${message.ResourceStatus} message for LogicalResourceId ${message.LogicalResourceId}`);
     callback(null);
     return;
@@ -89,7 +104,8 @@ function processEvent(event, callback) {
     // text: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
     "attachments": [{
       "color": STATUS_COLORS[message.ResourceStatus] || '#ccc',
-      "text": `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
+      "title": `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
+      "text": (message.ResourceStatus === 'UPDATE_IN_PROGRESS') ? '' : message.ResourceStatusReason,
 			"footer": "CloudFormation",
 			"footer_icon": "https://s3.amazonaws.com/cloudwatch-console-static-content-s3/1.0/images/favicon.ico",
 			"ts": Math.floor(+new Date(message.Timestamp) / 1000),
