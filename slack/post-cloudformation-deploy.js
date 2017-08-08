@@ -9,17 +9,32 @@ let config;
 
 function parseCloudFormationMessage(message) {
   console.log("MESSAGE", message);
+
+  const terms = message.split('\n');
+  const out = {};
+  terms.forEach((term) => {
+    // matches e.g. LogicalResourceId='DigitalApps-311Indexer-DeployPipeline-17SDBA13ADM41'
+    const m = term.match(/^([^/]*)='(.*)'$/);
+    out[m[1]] = m[2];
+  })
+
+  return out;
 }
 
 function processEvent(event, callback) {
   const snsRecord = event.Records[0].Sns;
   const subject = snsRecord.Subject;
 
-  parseCloudFormationMessage(snsRecord.Message);
+  const message = parseCloudFormationMessage(snsRecord.Message);
+
+  if (message.StackName !== message.LogicalResourceId) {
+    console.info('Skipping message for LogicalResourceId ' + message.LogicalResourceId);
+    callback(null);
+  }
 
   const slackMessage = {
     channel: config.DEPLOY_SLACK_CHANNEL,
-    text: `${subject}`,
+    text: `${message.StackName}: ${message.ResourceStatus}`,
   };
 
   postMessage(config.DEPLOY_SLACK_WEBHOOK_URL, slackMessage, (response) => {
