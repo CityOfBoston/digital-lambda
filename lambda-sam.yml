@@ -12,6 +12,15 @@ Parameters:
     Type: String
     Description: ARN for the role that Lambda functions will get
 
+  DeploySlackChannel:
+    Type: String
+    Description: Channel to send Slack messages to
+    Default: digital_builds
+
+  DeploySlackWebhookUrl:
+    Type: String
+    Description: Webhook URL for the above channel
+
 Resources:
   CloudFormationDeployFunction:
     Type: AWS::Serverless::Function
@@ -22,7 +31,3 @@ Resources:
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
       CodeUri: ./slack/
-      Environment:
-        Variables:
-          SLACK_WEBHOOK_URL: !Ref DeploySlackWebhookUrl
-          SLACK_CHANNEL: !Ref DeploySlackChannel
