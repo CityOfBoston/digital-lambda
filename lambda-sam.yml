@@ -13,6 +13,11 @@ Parameters:
     Description: ARN for the role that Lambda functions will get
 
 Resources:
+  CloudFormationDeployTopic:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      TopicName: !Sub "${LambdaStackName}-CloudFormationDeploy"
+
   CloudFormationDeployFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -22,3 +27,8 @@ Resources:
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
       CodeUri: ./slack/
+      Events:
+        SnsTopic:
+          Type: SNS
+          Properties:
+            Topic: !Ref CloudFormationDeployTopic

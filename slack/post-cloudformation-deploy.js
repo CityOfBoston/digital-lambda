@@ -7,9 +7,15 @@ const postMessage = require('./slack-helpers').postMessage;
 
 let config;
 
+function parseCloudFormationMessage(message) {
+  console.log("MESSAGE", message);
+}
+
 function processEvent(event, callback) {
   const snsRecord = event.Records[0].Sns;
   const subject = snsRecord.Subject;
+
+  parseCloudFormationMessage(snsRecord.Message);
 
   const slackMessage = {
     channel: config.DEPLOY_SLACK_CHANNEL,
