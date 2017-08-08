@@ -18,6 +18,11 @@ Resources:
     Properties: 
       TopicName: !Sub "${LambdaStackName}-CloudFormationDeploy"
 
+  CloudWatchAlarmTopic:
+    Type: "AWS::SNS::Topic"
+    Properties: 
+      TopicName: !Sub "${LambdaStackName}-CloudWatchAlert"
+
   CloudFormationDeployFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -32,3 +37,24 @@ Resources:
           Type: SNS
           Properties:
             Topic: !Ref CloudFormationDeployTopic
+
+  CloudWatchAlarmFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${LambdaStackName}-CloudWatchAlarmFunction"
+      Description: Function to notify Slack when a CloudWatch alarm fires
+      Role: !Ref LambdaExecutionRoleArn
+      Handler: post-cloudwatch-alarm.handler
+      Runtime: nodejs6.10
+      CodeUri: ./slack/
+      Events:
+        SnsTopic:
+          Type: SNS
+          Properties:
+            Topic: !Ref CloudWatchAlarmTopic
+
+Outputs:
+  CloudFormationDeployTopic:
+    Value: !Ref CloudFormationDeployTopic
+  CloudWatchAlarmTopic:
+    Value: !Ref CloudWatchAlarmTopic

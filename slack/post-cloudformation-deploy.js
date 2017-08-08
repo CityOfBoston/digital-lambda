@@ -101,7 +101,6 @@ function parseCloudFormationMessage(message) {
 
 function processEvent(event, callback) {
   const snsRecord = event.Records[0].Sns;
-
   const message = parseCloudFormationMessage(snsRecord.Message);
 
   console.info('Parsed message', message);
@@ -140,7 +139,7 @@ function processEvent(event, callback) {
             : message.ResourceStatusReason,
         footer: 'CloudFormation',
         footer_icon:
-          'https://s3.amazonaws.com/cloudwatch-console-static-content-s3/1.0/images/favicon.ico',
+          'https://www.shareicon.net/data/2015/08/28/92219_copy_512x512.png',
         ts: Math.floor(+new Date(message.Timestamp) / 1000),
       },
     ],
