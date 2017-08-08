@@ -5,6 +5,15 @@ const path = require('path');
 
 const postMessage = require('./slack-helpers').postMessage;
 
+const IGNORED_STATUSES = [
+  'UPDATE_COMPLETE_CLEANUP_IN_PROGRESS',
+];
+
+const STATUS_COLORS = {
+  'UPDATE_IN_PROGRESS': 'warning',
+  'UPDATE_COMPLETE': 'good'
+};
+
 let config;
 
 /*
@@ -70,15 +79,21 @@ function processEvent(event, callback) {
   const message = parseCloudFormationMessage(snsRecord.Message);
   const stackUrl = makeStackUrl(message.StackId);
 
-  if (message.StackName !== message.LogicalResourceId) {
+  if (message.StackName !== message.LogicalResourceId || IGNORED_STATUSES.indexOf(message.ResourceStatus) !== -1) {
     console.info(`Skipping ${message.ResourceStatus} message for LogicalResourceId ${message.LogicalResourceId}`);
     callback(null);
     return;
   }
 
   const slackMessage = {
-    channel: config.DEPLOY_SLACK_CHANNEL,
-    text: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
+    // text: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
+    "attachments": [{
+      "color": STATUS_COLORS[message.ResourceStatus] || '#ccc',
+      "text": `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
+			"footer": "CloudFormation",
+			"footer_icon": "https://s3.amazonaws.com/cloudwatch-console-static-content-s3/1.0/images/favicon.ico",
+			"ts": Math.floor(+new Date(message.Timestamp) / 1000),
+    }]
   };
 
   postMessage(config.DEPLOY_SLACK_WEBHOOK_URL, slackMessage, (response) => {
