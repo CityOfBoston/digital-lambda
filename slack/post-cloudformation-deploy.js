@@ -54,7 +54,7 @@ function parseCloudFormationMessage(message) {
 
   let match;
   while ((match = re.exec(message)) !== null) {
-    out[match[1]] = out[match[2]];
+    out[match[1]] = match[2];
   }
 
   console.log("MATCHES", out)
