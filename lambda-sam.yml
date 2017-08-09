@@ -12,17 +12,11 @@ Parameters:
     Type: String
     Description: ARN for the role that Lambda functions will get
 
+  NotificationsStackName:
+    Type: String
+    Description: Stack name for SNS notification topics
+
 Resources:
-  CloudFormationDeployTopic:
-    Type: "AWS::SNS::Topic"
-    Properties: 
-      TopicName: !Sub "${LambdaStackName}-CloudFormationDeploy"
-
-  CloudWatchAlarmTopic:
-    Type: "AWS::SNS::Topic"
-    Properties: 
-      TopicName: !Sub "${LambdaStackName}-CloudWatchAlert"
-
   CloudFormationDeployFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -36,7 +30,9 @@ Resources:
         SnsTopic:
           Type: SNS
           Properties:
-            Topic: !Ref CloudFormationDeployTopic
+            Topic:
+              Fn::ImportValue:
+                !Sub '${NotificationsStackName}:DeployTopicArn'
 
   CloudWatchAlarmFunction:
     Type: AWS::Serverless::Function
@@ -51,10 +47,6 @@ Resources:
         SnsTopic:
           Type: SNS
           Properties:
-            Topic: !Ref CloudWatchAlarmTopic
-
-Outputs:
-  CloudFormationDeployTopic:
-    Value: !Ref CloudFormationDeployTopic
-  CloudWatchAlarmTopic:
-    Value: !Ref CloudWatchAlarmTopic
+            Topic:
+              Fn::ImportValue:
+                !Sub '${NotificationsStackName}:AlarmTopicArn'
