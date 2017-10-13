@@ -126,17 +126,18 @@ def lambda_handler(event, context):
     logger.debug("Ec2 Instance Id %s ,%s",Ec2InstanceId, asgGroupName)
     logger.debug("SNS ARN %s",snsArn)
 
-    # Describe instance attributes and get the Clustername from userdata section which would have set ECS_CLUSTER name
-    ec2Resp = ec2Client.describe_instance_attribute(InstanceId=Ec2InstanceId, Attribute='userData')
-    logger.debug("Describe instance attributes response %s",ec2Resp)
-    userdataEncoded = ec2Resp['UserData']
-    userdataDecoded = base64.b64decode(userdataEncoded['Value'])
+    ec2Resp = ec2Client.describe_instances(InstanceIds=[Ec2InstanceId])
+    logger.debug("Describe instances response %s",ec2Resp)
 
-    tmpList = userdataDecoded.split()
-    for token in tmpList:
-        if token.find("ECS_CLUSTER") > -1:
-            # Split and get the cluster name
-            clusterName = token.split('=')[1]
+    tagList = ec2Resp['Reservations']['Instances'][0]['Tags']
+
+    # userdataEncoded = ec2Resp['UserData']
+    # userdataDecoded = base64.b64decode(userdataEncoded['Value'])
+
+    # tmpList = userdataDecoded.split()
+    for tag in tagList:
+        if tag['Key'] == 'ClusterName':
+            clusterName = tag['Value']
             logger.debug("Cluster name %s",clusterName)
 
     # Get list of container instance IDs from the clusterName
