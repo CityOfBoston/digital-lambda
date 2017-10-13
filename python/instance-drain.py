@@ -57,7 +57,8 @@ def checkContainerInstanceTaskStatus(Ec2InstanceId):
     paginator = ecsClient.get_paginator('list_container_instances')
     clusterListPages = paginator.paginate(cluster=clusterName)
     for containerListResp in clusterListPages:
-        containerDetResp = ecsClient.describe_container_instances(cluster=clusterName, containerInstances=clusterListResp[
+        logger.debug("Container list resp", clusterListPages)
+        containerDetResp = ecsClient.describe_container_instances(cluster=clusterName, containerInstances=containerListResp[
             'containerInstanceArns'])
         logger.debug("describe container instances response %s",containerDetResp)
 
