@@ -3,13 +3,12 @@ import boto3
 from urlparse import urlparse
 import base64
 import json
-import datetime
 import time
 import logging
 
 logging.basicConfig()
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 # Establish boto3 session
 session = boto3.session.Session()
@@ -88,7 +87,7 @@ def checkContainerInstanceTaskStatus(Ec2InstanceId):
     if containerInstanceId != None:
         # List tasks on the container instance ID, to get task Arns
         listTaskResp = ecsClient.list_tasks(cluster=clusterName, containerInstance=containerInstanceId)
-        logger.debug("Container instance task list %s",listTaskResp['taskArns'])
+        logger.info("Container instance task list %s",listTaskResp['taskArns'])
 
         # If the chosen instance has tasks
         if len(listTaskResp['taskArns']) > 0:
@@ -112,13 +111,12 @@ def lambda_handler(event, context):
 
     lifecyclehookname = None
     tmpMsgAppend = None
-    completeHook = 0
 
     logger.info("Lambda received the event %s",event)
     logger.debug("records: %s",event['Records'][0])
     logger.debug("sns: %s",event['Records'][0]['Sns'])
-    logger.debug("Message: %s",message)
-    logger.debug("Ec2 Instance Id %s ,%s",Ec2InstanceId, asgGroupName)
+    logger.info("Message: %s",message)
+    logger.info("Ec2 Instance Id %s ,%s",Ec2InstanceId, asgGroupName)
     logger.debug("SNS ARN %s",snsArn)
 
     # If the event received is instance terminating...
@@ -138,12 +136,12 @@ def lambda_handler(event, context):
 
             # If tasks are still running...
             if tasksRunning == 1:
+                logger.info("Publishing message to retry...")
                 msgResponse = publishToSNS(message, TopicArn)
-                logger.debug("msgResponse %s and time is %s",msgResponse, datetime.datetime)
+                logger.debug("msgResponse %s", msgResponse)
             # If tasks are NOT running...
             elif tasksRunning == 0:
-                completeHook = 1
-                logger.debug("Setting lifecycle to complete;No tasks are running on instance, completing lifecycle action....")
+                logger.info("No tasks are running on instance, setting lifecycle action to COMPLETE...")
 
                 try:
                     response = asgClient.complete_lifecycle_action(
