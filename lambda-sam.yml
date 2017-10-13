@@ -25,7 +25,7 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Handler: post-cloudformation-deploy.handler
       Runtime: nodejs6.10
-      CodeUri: ./slack/
+      CodeUri: ./js/
       Events:
         SnsTopic:
           Type: SNS
@@ -42,7 +42,7 @@ Resources:
       Role: !Ref LambdaExecutionRoleArn
       Handler: post-cloudwatch-alarm.handler
       Runtime: nodejs6.10
-      CodeUri: ./slack/
+      CodeUri: ./js/
       Events:
         SnsTopic:
           Type: SNS
@@ -50,3 +50,31 @@ Resources:
             Topic:
               Fn::ImportValue:
                 !Sub '${NotificationsStackName}:AlarmTopicArn'
+
+  EcsInstanceDrainFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub "${LambdaStackName}-EcsInstanceDrainFunction"
+      Description: Lambda code for the autoscaling hook triggers invoked when autoscaling events of launching and terminating instance occur
+      Role: !Ref LambdaExecutionRoleArn
+      Handler: "instance-drain.handler"
+      Runtime: "python2.7"
+      CodeUri: ./python/
+      Timeout: "300"
+      Events:
+        SnsTopic:
+          Type: SNS
+          Properties:
+            Topic:
+              Fn::ImportValue:
+                !Sub '${NotificationsStackName}:ClusterLifecycleTopicArn'
+
+  # EcsInstanceDrainInvokePermission:
+  #   Type: "AWS::Lambda::Permission"
+  #   Properties:
+  #     FunctionName: !Ref EcsInstanceDrainFunction
+  #     Action: lambda:InvokeFunction
+  #     Principal: "sns.amazonaws.com"
+  #     SourceArn:
+  #       Fn::ImportValue:
+  #         !Sub '${NotificationsStackName}:ClusterLifecycleTopicArn'
