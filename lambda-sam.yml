@@ -60,7 +60,7 @@ Resources:
       Handler: "instance-drain.handler"
       Runtime: "python2.7"
       CodeUri: ./python/
-      Timeout: "300"
+      Timeout: 300
       Events:
         SnsTopic:
           Type: SNS
