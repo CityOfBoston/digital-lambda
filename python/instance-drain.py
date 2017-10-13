@@ -129,7 +129,7 @@ def lambda_handler(event, context):
     ec2Resp = ec2Client.describe_instances(InstanceIds=[Ec2InstanceId])
     logger.debug("Describe instances response %s",ec2Resp)
 
-    tagList = ec2Resp['Reservations']['Instances'][0]['Tags']
+    tagList = ec2Resp['Reservations'][0]['Instances'][0]['Tags']
 
     # userdataEncoded = ec2Resp['UserData']
     # userdataDecoded = base64.b64decode(userdataEncoded['Value'])
