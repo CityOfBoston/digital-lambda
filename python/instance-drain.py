@@ -107,7 +107,6 @@ def checkContainerInstanceTaskStatus(Ec2InstanceId):
 
 
 def lambda_handler(event, context):
-
     line = event['Records'][0]['Sns']['Message']
     message = json.loads(line)
     Ec2InstanceId = message['EC2InstanceId']
