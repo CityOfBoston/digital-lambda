@@ -57,7 +57,7 @@ def checkContainerInstanceTaskStatus(Ec2InstanceId):
     paginator = ecsClient.get_paginator('list_container_instances')
     clusterListPages = paginator.paginate(cluster=clusterName)
     for containerListResp in clusterListPages:
-        logger.debug("Container list resp", clusterListPages)
+        logger.debug("Container list resp", containerListResp)
         containerDetResp = ecsClient.describe_container_instances(cluster=clusterName, containerInstances=containerListResp[
             'containerInstanceArns'])
         logger.debug("describe container instances response %s",containerDetResp)
@@ -112,7 +112,6 @@ def lambda_handler(event, context):
     TopicArn = event['Records'][0]['Sns']['TopicArn']
 
     lifecyclehookname = None
-    clusterName = None
     tmpMsgAppend = None
     completeHook = 0
 
@@ -122,19 +121,6 @@ def lambda_handler(event, context):
     logger.debug("Message: %s",message)
     logger.debug("Ec2 Instance Id %s ,%s",Ec2InstanceId, asgGroupName)
     logger.debug("SNS ARN %s",snsArn)
-
-    ec2Resp = ec2Client.describe_instances(InstanceIds=[Ec2InstanceId])
-    logger.debug("Describe instances response %s",ec2Resp)
-
-    tagList = ec2Resp['Reservations'][0]['Instances'][0]['Tags']
-    for tag in tagList:
-        if tag['Key'] == 'ClusterName':
-            clusterName = tag['Value']
-            logger.debug("Cluster name %s",clusterName)
-
-    # Get list of container instance IDs from the clusterName
-    clusterListResp = ecsClient.list_container_instances(cluster=clusterName)
-    logger.debug("list container instances response %s",clusterListResp)
 
     # If the event received is instance terminating...
     if 'LifecycleTransition' in message.keys():
