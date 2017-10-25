@@ -154,14 +154,14 @@ function processEvent(event, callback) {
         title: `<${stackUrl}|${message.StackName}>: ${STATUS_MESSAGES[
           message.ResourceStatus
         ]}`,
-        mrkdwn_in: true,
+        mrkdwn_in: ['text'],
         text,
         footer: 'CloudFormation',
         footer_icon:
           'https://www.shareicon.net/data/2015/08/28/92219_copy_512x512.png',
         ts: message.Timestamp
           ? Math.floor(+new Date(message.Timestamp) / 1000)
-          : null,
+          : Math.floor(+new Date() / 1000),
       },
     ],
   };
