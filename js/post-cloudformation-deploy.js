@@ -24,6 +24,8 @@ const STATUS_MESSAGES = {
   DELETE_IN_PROGRESS: 'Starting delete…',
   DELETE_COMPLETE: 'Delete successful!',
   DELETE_FAILED: 'Failure deleting resource',
+
+  CHANGE_SET_CREATED: 'Change set ready…',
 };
 
 const STATUS_COLORS = {
@@ -40,6 +42,8 @@ const STATUS_COLORS = {
   DELETE_IN_PROGRESS: 'warning',
   DELETE_COMPLETE: 'good',
   DELETE_FAILED: 'danger',
+
+  CHANGE_SET_CREATED: 'good',
 };
 
 let config;
@@ -127,21 +131,33 @@ function processEvent(event, callback) {
     `Posting ${message.ResourceStatus} message for LogicalResourceId ${message.LogicalResourceId}`
   );
 
+  const changeSetProperties = message.ChangeSetProperties
+    ? JSON.parse(message.ChangeSetProperties.trim())
+    : {};
+
+  let text;
+  switch (message.ResourceStatus) {
+    case 'UPDATE_IN_PROGRESS':
+      text = '';
+      break;
+    case 'CHANGE_SET_CREATED':
+      text = `\`aws cloudformation execute-change-set --change-set-name ${changeSetProperties.Id}\``;
+      break;
+    default:
+      text = message.ResourceStatusReason;
+  }
+
   const slackMessage = {
-    // text: `<${stackUrl}|${message.StackName}>: ${message.ResourceStatus}`,
     attachments: [
       {
         color: STATUS_COLORS[message.ResourceStatus] || '#ccc',
         title: `<${stackUrl}|${message.StackName}>: ${STATUS_MESSAGES[
           message.ResourceStatus
         ]}`,
-        text:
-          message.ResourceStatus === 'UPDATE_IN_PROGRESS'
-            ? ''
-            : message.ResourceStatusReason,
-        footer: 'CloudFormation',
-        footer_icon:
-          'https://www.shareicon.net/data/2015/08/28/92219_copy_512x512.png',
+        text,
+        // footer: 'CloudFormation',
+        // footer_icon:
+        //   'https://www.shareicon.net/data/2015/08/28/92219_copy_512x512.png',
         ts: Math.floor(+new Date(message.Timestamp) / 1000),
       },
     ],
