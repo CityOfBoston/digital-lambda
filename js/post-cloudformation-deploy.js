@@ -159,7 +159,9 @@ function processEvent(event, callback) {
         footer: 'CloudFormation',
         footer_icon:
           'https://www.shareicon.net/data/2015/08/28/92219_copy_512x512.png',
-        ts: Math.floor(+new Date(message.Timestamp) / 1000),
+        ts: message.Timestamp
+          ? Math.floor(+new Date(message.Timestamp) / 1000)
+          : null,
       },
     ],
   };
