@@ -25,7 +25,7 @@ const STATUS_MESSAGES = {
   DELETE_COMPLETE: 'Delete successful!',
   DELETE_FAILED: 'Failure deleting resource',
 
-  CHANGE_SET_CREATED: 'Change set ready…',
+  CHANGE_SET_CREATE: 'Change set ready…',
 };
 
 const STATUS_COLORS = {
@@ -43,7 +43,7 @@ const STATUS_COLORS = {
   DELETE_COMPLETE: 'good',
   DELETE_FAILED: 'danger',
 
-  CHANGE_SET_CREATED: 'good',
+  CHANGE_SET_CREATE: 'good',
 };
 
 let config;
@@ -140,8 +140,8 @@ function processEvent(event, callback) {
     case 'UPDATE_IN_PROGRESS':
       text = '';
       break;
-    case 'CHANGE_SET_CREATED':
-      text = `\`aws cloudformation execute-change-set --change-set-name ${changeSetProperties.Id}\``;
+    case 'CHANGE_SET_CREATE':
+      text = `Deploy with: \`aws cloudformation execute-change-set --change-set-name ${changeSetProperties.Id}\``;
       break;
     default:
       text = message.ResourceStatusReason;
@@ -154,6 +154,7 @@ function processEvent(event, callback) {
         title: `<${stackUrl}|${message.StackName}>: ${STATUS_MESSAGES[
           message.ResourceStatus
         ]}`,
+        mrkdwn_in: true,
         text,
         footer: 'CloudFormation',
         footer_icon:
