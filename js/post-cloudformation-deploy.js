@@ -101,6 +101,8 @@ function parseCloudFormationMessage(message) {
 
 function processEvent(event, callback) {
   const snsRecord = event.Records[0].Sns;
+  console.info('Received message', snsRecord);
+
   const message = parseCloudFormationMessage(snsRecord.Message);
 
   console.info('Parsed message', message);
