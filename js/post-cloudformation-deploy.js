@@ -111,7 +111,11 @@ function processEvent(event, callback) {
 
   console.info('Parsed message', message);
 
-  const stackUrl = makeStackUrl(message.StackId);
+  const changeSetProperties = message.ChangeSetProperties
+    ? JSON.parse(message.ChangeSetProperties.trim())
+    : {};
+
+  const stackUrl = makeStackUrl(message.StackId || changeSetProperties.StackId);
 
   const aboutOurStack = message.LogicalResourceId === message.StackName;
   const isFailure = message.ResourceStatus.endsWith('_FAILED');
@@ -131,17 +135,13 @@ function processEvent(event, callback) {
     `Posting ${message.ResourceStatus} message for LogicalResourceId ${message.LogicalResourceId}`
   );
 
-  const changeSetProperties = message.ChangeSetProperties
-    ? JSON.parse(message.ChangeSetProperties.trim())
-    : {};
-
   let text;
   switch (message.ResourceStatus) {
     case 'UPDATE_IN_PROGRESS':
       text = '';
       break;
     case 'CHANGE_SET_CREATE':
-      text = `Deploy with: \`aws cloudformation execute-change-set --change-set-name ${changeSetProperties.Id}\``;
+      text = `Deploy with: \`aws cloudformation execute-change-set --change-set-name ${message.ChangeSetName} --stack-name ${message.StackName}\``;
       break;
     default:
       text = message.ResourceStatusReason;
