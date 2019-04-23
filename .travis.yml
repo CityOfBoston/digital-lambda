@@ -1,0 +1,30 @@
+dist: xenial
+language: node_js
+node_js:
+  - "6.10"
+branches:
+  only:
+  - production
+  - travis-test
+addons:
+  apt:
+    update: true
+
+
+before_install:
+- pip install --user travis awscli
+
+script: skip
+
+deploy:
+  provider: script
+  script: ./travis-deploy.sh
+  on:
+    branch: travis-test
+
+notifications:
+  slack:
+    on_success: always
+    on_failure: always
+    rooms:
+      secure: XaYFjQs7lZpMxjCHlkUEWenLLDVEdTfJBKWbow7aL3A0K1d7LJCQM4jtvtunznBvGj9HF9UTdCPhNKnl/1ShnaZgKilRo3qNNBpsatkYJXWqFF/gzItVw00Chr+JP6PMSGePHmxZ5v7i4iTJ7e7sfZB5xKy5jTtoFcJg9movqPKin/e5TS/YQNjrEv5UOLg4Ry6z1J0I1bF+tNLgHklIlNtjNLXZfi4t/6tPY79Vg9BPckDIUExVkOVvqQ+E2YRwXwhMEGw3ECO+cX5Qy1Bk/S/HagBfXHo0v3gc6qgmkh6GV3n+RRVEHBfes4vdSQKkAWz7OLt/WHbLIDQiyBSEhpvn79bAuKAmIPGhKaZSEkWwvOc/1PnRaDos58LdWlyKSo5deKswVZcKDI+8Loi0WUEPX28aJ4N6OKe8nk0ZTiCM+p16x1PaQKHV9HfAChAGF372fVbaUqaZpBvwIuCkQtmUbBCkZRKWHcYv5gDbZnmP4pICfTMtx8ofbCTDTDPiCUDFYE6Y9+IK6OzVw/9A3lJOYkOgfR3u9o95NdKeAfBEPLN6Kvvq6wcWW48htcO4QOQ+dRvgRBEdAVtkA+VRkIqiSrXS6NrE9fYSzS+fBzJizEsqiPkNpTFdBHGezp+T6MY0unXtNLRBFwh7D++c4o67b1Y+o7tUo+l/FE7fGyg=
