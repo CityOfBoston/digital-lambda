@@ -137,6 +137,8 @@ def lambda_handler(event, context):
             # If tasks are still running...
             if tasksRunning == 1:
                 logger.info("Publishing message to retry...")
+                # We want to wait a bit before pushing the message to avoid an API rate limit
+                time.sleep(5)
                 msgResponse = publishToSNS(message, TopicArn)
                 logger.debug("msgResponse %s", msgResponse)
             # If tasks are NOT running...

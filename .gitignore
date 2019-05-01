@@ -1,1 +1,4 @@
 node_modules
+
+# Zip file generated during deployment
+lambda.zip
