@@ -8,12 +8,6 @@ on in the repo.
 Configuration is done by synching the `cob-digital-lambda-config` bucket into
 the repo before bundling up the lambda functions.
 
-### slack/post-cloudformation-deploy
-
-Posts to Slack on the status of CloudFormation deployments.
-
-(Deprecated)
-
 ### slack/post-cloudwatch-alarm
 
 Posts to Slack when CloudWatch alarms go off or resolve.

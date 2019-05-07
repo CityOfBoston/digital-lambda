@@ -9,10 +9,6 @@ pushd slack
 zip -v lambda.zip -r *
 
 aws lambda update-function-code \
-  --function-name AppsLambdaPipeline-CloudFormationDeployFunction \
-  --zip-file fileb://lambda.zip
-
-aws lambda update-function-code \
   --function-name AppsLambdaPipeline-CloudWatchAlarmFunction \
   --zip-file fileb://lambda.zip
 popd
