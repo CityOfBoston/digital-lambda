@@ -54,13 +54,13 @@ function makeAlarmUrl(alarmName) {
     .AWS_REGION}#s=Alarms&alarm=${encodeURIComponent(alarmName)}`;
 }
 
-function parseCloudFormationMessage(message) {
+function parseCloudWatchMessage(message) {
   return JSON.parse(message);
 }
 
 function processEvent(event, callback) {
   const snsRecord = event.Records[0].Sns;
-  const message = parseCloudFormationMessage(snsRecord.Message);
+  const message = parseCloudWatchMessage(snsRecord.Message);
   console.info('Parsed message', message);
 
   const alarmUrl = makeAlarmUrl(message.AlarmName);
